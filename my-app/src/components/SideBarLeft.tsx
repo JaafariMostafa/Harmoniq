@@ -25,14 +25,14 @@ export default function SideBarLeft() {
         {SidBarMenuNavigations.map((nav, idx) => {
           const isActive = pathname === nav.href;
           return (
-            <button
-              className={`w-full capitalize py-1 px-3 rounded-lg flex items-center gap-3 text-md cursor-pointer font-semibold
-                ${isActive ? "text-black bg-white" : "hover:bg-neutral-900"}`}
-              onClick={() => router.push(nav.href)}
+            <Link
+              href={nav.href}
+              className={`w-full capitalize py-1 px-3 rounded-lg flex items-center gap-3 text-md border cursor-pointer font-semibold
+                ${isActive ? "text-black bg-white border-transparent" : "hover:bg-neutral-900 border-transparent hover:border-neutral-800"}`}
               key={idx}
             >
               <nav.icon size={20}/> {nav.name}
-            </button>
+            </Link>
           )
         })}
       </ul>
