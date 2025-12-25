@@ -1,9 +1,14 @@
+"use client"
 import { ChevronDown, Play, SkipBack, SkipForward } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function SideBarRight() {
+  const pathname = usePathname();
+  if(pathname?.startsWith('/auth/')) {
+    return null;
+  }
   return (
     <div className='w-1/4 h-screen overflow-auto p-6 flex-shrink-0'>
       {/* --- User Profile Section --- */}

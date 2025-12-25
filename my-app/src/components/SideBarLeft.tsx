@@ -7,6 +7,9 @@ export default function SideBarLeft() {
   const router = useRouter();
   const pathname = usePathname();
   
+  if(pathname?.startsWith('/auth/')) {
+    return null;
+  }
   return (
     <div
       className='w-1/5 p-6 flex-shrink-0'
