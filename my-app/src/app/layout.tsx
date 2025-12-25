@@ -3,6 +3,7 @@ import { Geom } from "next/font/google";
 import "./globals.css";
 import SideBarLeft from "@/components/SideBarLeft";
 import SideBarRight from "@/components/SideBarRight";
+import { AudioPlayerProvider } from "@/Context/AudioPlayerProvider";
 
 const geom = Geom({
   variable: "--font-geom",
@@ -26,9 +27,11 @@ export default function RootLayout({
         className={`${geom.variable} antialiased
           w-full h-screen overflow-y-auto flex bg-black text-white`}
       >
-        <SideBarLeft />
-        {children}
-        <SideBarRight />
+          <SideBarLeft />
+          {children}
+        <AudioPlayerProvider>
+          <SideBarRight />
+        </AudioPlayerProvider>
       </body>
     </html>
   );

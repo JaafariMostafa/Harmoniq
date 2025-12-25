@@ -1,14 +1,19 @@
 "use client"
-import { ChevronDown, Play, SkipBack, SkipForward } from 'lucide-react'
+import { useAudioPlayer } from '@/Context/AudioPlayerProvider'
+import { ChevronDown, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useRef, useState } from 'react'
 
 export default function SideBarRight() {
   const pathname = usePathname();
   if(pathname?.startsWith('/auth/')) {
     return null;
   }
+
+  const { ToggleAudioPlayer, isPlaying, audioData, setAudioData, seek } = useAudioPlayer();
+  const TestSrcAudio = "https://iyzmssnbulmbaqvkprxl.supabase.co/storage/v1/object/public/Audio/Lady%20Gaga,%20Bruno%20Mars%20-%20Die%20With%20A%20Smile%20(Official%20Music%20Video).mp3";
   return (
     <div className='w-1/4 h-screen overflow-auto p-6 flex-shrink-0'>
       {/* --- User Profile Section --- */}
@@ -151,24 +156,55 @@ export default function SideBarRight() {
                 className='w-full flex items-center justify-center mt-3 gap-3'
               >
                 <button
-                  className='cursor-pointer text-neutral-300 hover:text-white'
+                  disabled
+                  className='group disabled:text-neutral-500 cursor-pointer text-neutral-300 hover:text-white'
                 >
-                  <SkipBack size={20} className='fill-white' />
+                  <SkipBack size={20} className='group-disabled:fill-neutral-500 group-disabled:cursor-not-allowed fill-white' />
                 </button>
                 <button
+                  onClick={() => ToggleAudioPlayer(TestSrcAudio)}
                   className='border border-neutral-500 hover:border-white p-1.5 cursor-pointer rounded-full'
                 >
-                  <Play size={20} className='fill-white'/>
+                  {isPlaying ? <Pause size={20} className='fill-white' /> : <Play size={20} className='fill-white' />}
                 </button>
                 <button
-                  className='cursor-pointer text-neutral-300 hover:text-white'
+                  disabled
+                  className='group disabled:text-neutral-500 cursor-pointer text-neutral-300 hover:text-white'
                 >
-                  <SkipForward size={20} className='fill-white' />
+                  <SkipForward size={20} className='group-disabled:fill-neutral-500 group-disabled:cursor-not-allowed fill-white' />
                 </button>
               </div>
-              <audio controls className="w-full">
-                <source src="https://iyzmssnbulmbaqvkprxl.supabase.co/storage/v1/object/public/Audio/Lady%20Gaga,%20Bruno%20Mars%20-%20Die%20With%20A%20Smile%20(Official%20Music%20Video).mp3" type="audio/mpeg" />
-              </audio>
+              {/* --- TimeLine --- */}
+              <div
+                className='w-full px-3 text-xs'
+              >
+                <span
+                  className='w-full flex items-center justify-between'
+                >
+                  <p>
+                    {Math.floor(audioData.currentTime / 60)}:{Math.floor(audioData.currentTime % 60).toString().padStart(2, '0')}
+                  </p>
+                  <p>
+                    {Math.floor(audioData.duration / 60)}:{Math.floor(audioData.duration % 60).toString().padStart(2, '0')}
+                  </p>
+                </span>
+
+                <div
+                  onClick={(e) => {
+                    const rect = (e.target as HTMLDivElement).getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const newTime = (clickX / rect.width) * audioData.duration;
+                    setAudioData((prev) => ({...prev, currentTime: newTime}));
+                    seek(newTime);
+                  }}
+                  className='relative group cursor-pointer w-full bg-white/10 h-1 mt-2 rounded-full'
+                >
+                  <span 
+                    style={{ width: `${(audioData.currentTime / audioData.duration) * 100}%` }} 
+                    className='absolute -z-10 h-1 rounded-full bg-white after:content-[""] after:w-3 after:h-2 after:bg-white after:absolute after:top-1/2 after:-translate-y-1/2 after:-right-1.5 after:rounded-full'
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
