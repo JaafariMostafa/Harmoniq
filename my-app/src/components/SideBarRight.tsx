@@ -1,10 +1,10 @@
 "use client"
 import { useAudioPlayer } from '@/Context/AudioPlayerProvider'
+import { useUserInfos } from '@/Context/UserInfosContext'
 import { ChevronDown, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useRef, useState } from 'react'
 
 export default function SideBarRight() {
   const pathname = usePathname();
@@ -14,9 +14,11 @@ export default function SideBarRight() {
 
   const { ToggleAudioPlayer, isPlaying, audioData, setAudioData, seek } = useAudioPlayer();
   const TestSrcAudio = "https://iyzmssnbulmbaqvkprxl.supabase.co/storage/v1/object/public/Audio/Lady%20Gaga,%20Bruno%20Mars%20-%20Die%20With%20A%20Smile%20(Official%20Music%20Video).mp3";
+  const { email, id, fullname, isLoading } = useUserInfos();
   return (
     <div className='w-1/4 h-screen overflow-auto p-6 flex-shrink-0'>
       {/* --- User Profile Section --- */}
+      {isLoading ? "loading..." : email !== "" ? (
       <div
         className='w-full flex items-center gap-3 justify-between py-1.5 px-3 
           cursor-pointer border border-neutral-900 hover:border-neutral-800 
@@ -37,22 +39,31 @@ export default function SideBarRight() {
             priority
           />
         </div>
-          <span className='flex flex-col -space-y-0.5'>
+          <span className='flex flex-col'>
             <h1 
-              className='text-lg font-semibold text-white'
+              className='text-lg font-semibold text-white truncate max-w-[140px]'
             >
-              John Doe
+              {fullname || email?.split('@')[0]}
             </h1>
             <p
-              className='text-neutral-500 text-sm'
+              className='text-neutral-500 text-xs truncate max-w-[160px] text-nowrap'
             >
-              Free Account
+              {/* Free Account */}
+              ID: {id}
             </p>
           </span>
         </div>
 
         <ChevronDown size={20}/>
       </div>
+      ) : !isLoading && email === "" && (
+        <Link
+          href="/auth/login"
+          className='w-full flex items-center justify-center py-2 px-3 rounded-lg bg-white text-neutral-900 font-semibold text-sm hover:bg-white/90 cursor-pointer'
+        >
+          Login / Register
+        </Link>
+      )}
 
       <div className='w-full h-px bg-neutral-900 my-3'/>
       {/* --- Top Artists Section --- */}

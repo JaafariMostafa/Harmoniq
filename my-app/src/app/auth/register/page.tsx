@@ -1,7 +1,16 @@
+import RegisterForm from '@/components/RegisterForm'
 import React from 'react'
 
 export default function page() {
   return (
-    <div>page</div>
+    <div
+      className='w-full flex flex-col justify-center items-center'
+    >
+      <div
+          className='w-full px-6 md:w-1/3'
+      >
+        <RegisterForm />
+      </div>
+    </div>
   )
 }
