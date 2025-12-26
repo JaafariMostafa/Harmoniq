@@ -2,8 +2,7 @@ import { createPublicClient } from "@/utils/supabase/server-public";
 import { unstable_cache } from "next/cache";
 
 
-const PAGE_SIZE = 20;
-export const getProductsPaginated = (page: number) => unstable_cache(
+export const getSongsPaginated = (page: number, PAGE_SIZE: number = 10) => unstable_cache(
     async () => {
         const supabase = createPublicClient();
 

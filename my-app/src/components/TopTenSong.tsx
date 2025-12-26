@@ -19,7 +19,7 @@ export default function TopTenSong({ TopTenSongs }: { TopTenSongs: TopTenSongsPr
         }
     })
   },[])
-    const { ToggleAudioPlayer, currentUrl, isPlaying } = useAudioPlayer();
+    const { ToggleAudioPlayer, isPlaying, currentSong, setCurrentPlaylist, currentPlaylist } = useAudioPlayer();
     return (
     <div>
         {/* --- TopTen Header --- */}
@@ -63,12 +63,13 @@ export default function TopTenSong({ TopTenSongs }: { TopTenSongs: TopTenSongsPr
                 <tbody>
                     {TopTenSongs.length > 0 ? TopTenSongs.map((song, idx) => {
                         const isSongPlaying = (songUrl: string) =>
-                            currentUrl?.trim().toLowerCase() === songUrl.trim().toLowerCase() && isPlaying;
+                            currentSong?.song_audio_url?.trim().toLowerCase() === songUrl.trim().toLowerCase() && isPlaying;
+                        const isActivePlaylist = currentPlaylist.find((s) => s.id === song.id);
                         return (
                             <tr
                                 key={idx}
                                 className={`hover:bg-neutral-800/40
-                                    ${currentUrl.toLowerCase() === song.song_audio_url.toLowerCase() ? "bg-neutral-800/40" : ""}`}
+                                    ${currentSong?.song_audio_url?.toLowerCase() === song.song_audio_url.toLowerCase() ? "bg-neutral-800/40" : ""}`}
                             >
                                 <td
                                     className='text-center py-1.5 text-xs'
@@ -132,7 +133,10 @@ export default function TopTenSong({ TopTenSongs }: { TopTenSongs: TopTenSongsPr
                                         className='w-full flex justify-center'
                                     >
                                         <button 
-                                            onClick={() => ToggleAudioPlayer(song.song_audio_url)}
+                                            onClick={() => {
+                                                ToggleAudioPlayer(song)
+                                                !isActivePlaylist && setCurrentPlaylist(TopTenSongs);
+                                            }}
                                             className='cursor-pointer rounded-full p-1 hover:bg-neutral-700/60 flex items-center justify-center'
                                         >
                                             {isSongPlaying(song.song_audio_url) ? <Pause size={18} /> : <Play size={18}/>}

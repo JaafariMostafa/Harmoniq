@@ -1,9 +1,10 @@
 "use client";
 
+import { TopTenSongsProps } from "@/lib/GlobalTypes";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type PlayerContextType = {
-  ToggleAudioPlayer: (src: string) => Promise<void>;
+  ToggleAudioPlayer: (currentSong: TopTenSongsProps) => Promise<void>;
   isPlaying: boolean;
   audioData: {
     duration: number;
@@ -14,7 +15,11 @@ type PlayerContextType = {
     currentTime: number;
   }>>;
   seek: (time: number) => void;
-  currentUrl: string;
+  currentPlaylist: TopTenSongsProps[] | [];
+  setCurrentPlaylist: (currentPlaylist: TopTenSongsProps[] | []) => void;
+  currentSong: TopTenSongsProps | null;
+  playNextSong: () => Promise<void>;
+  playPreviousSong: () => Promise<void>;
 };
 
 const AudioPlayerContext = createContext<PlayerContextType | null>(null);
@@ -26,7 +31,8 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
         duration: 0,
         currentTime: 0,
     });
-    const [currentUrl, setCurrentUrl] = useState("");
+    const [currentPlaylist, setCurrentPlaylist] = useState<TopTenSongsProps[] | []>([]);
+    const [currentSong, setCurrentSong] = useState<TopTenSongsProps | null>(null);
 
     useEffect(() => {
         audioRef.current = new Audio();
@@ -49,12 +55,12 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
     }, []);
 
   
-    const ToggleAudioPlayer = async (src: string) => {
+    const ToggleAudioPlayer = async (current_Song: TopTenSongsProps) => {
         const audio = audioRef.current;
         if (!audio) return;
 
-        if (audio.src !== src) {
-        audio.src = src;
+        if (audio.src !== current_Song.song_audio_url) {
+        audio.src = current_Song.song_audio_url;
         audio.load();
         }
         if(audio.paused){
@@ -64,8 +70,44 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
           audio.pause();
           setIsPlaying(false);
         }
-        setCurrentUrl(src);
+        setCurrentSong(current_Song);
     };
+
+    const playNextSong = async () => {
+      const audio = audioRef.current;
+      if(!audio || !currentSong || currentPlaylist.length === 0) return;
+
+      const currentIndex = currentPlaylist.findIndex((s) => s.id === currentSong.id);
+      if(currentIndex === -1) return;
+
+      const NextIndex = currentIndex === currentPlaylist.length - 1 ?
+        0 : currentIndex + 1;
+      
+      audio.src = currentPlaylist[NextIndex].song_audio_url;
+      audio.load();
+      await audio.play();
+
+      setCurrentSong(currentPlaylist[NextIndex]);
+      setIsPlaying(true);
+    }
+
+    const playPreviousSong = async () => {
+      const audio = audioRef.current;
+      if(!audio || !currentSong || currentPlaylist.length === 0) return;
+
+      const currentIndex = currentPlaylist.findIndex((s) => s.id === currentSong.id);
+      if(currentIndex === -1) return;
+
+      const NextIndex = currentIndex === 0 ?
+        currentPlaylist.length - 1 : currentIndex - 1;
+
+      audio.src = currentPlaylist[NextIndex].song_audio_url;
+      audio.load();
+      await audio.play();
+
+      setCurrentSong(currentPlaylist[NextIndex]);
+      setIsPlaying(true);
+    }
 
     const seek = (time: number) => {
         if(!time) return;
@@ -76,7 +118,7 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
     }
 
   return (
-    <AudioPlayerContext.Provider value={{ ToggleAudioPlayer, audioData, setAudioData, isPlaying, seek, currentUrl }}>
+    <AudioPlayerContext.Provider value={{ ToggleAudioPlayer, playNextSong, playPreviousSong, audioData, setAudioData, isPlaying, seek, currentPlaylist, currentSong, setCurrentPlaylist }}>
       {children}
     </AudioPlayerContext.Provider>
   );

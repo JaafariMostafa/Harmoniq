@@ -55,7 +55,9 @@ export default function SideBarRight() {
   if(pathname?.startsWith('/auth/')) {
     return null;
   }
-
+  
+  const { email, id, fullname, isLoading } = useUserInfos();
+ 
   const [isOpen, setIsOpen] = useState(false);
   const DropDown_Ref = useRef<HTMLDivElement | null>(null);
   
@@ -71,12 +73,8 @@ export default function SideBarRight() {
     }
   },[])
 
-  const { ToggleAudioPlayer, isPlaying, audioData, setAudioData, seek } = useAudioPlayer();
-  const { email, id, fullname, isLoading } = useUserInfos();
-  
-  const TestSrcAudio = "https://iyzmssnbulmbaqvkprxl.supabase.co/storage/v1/object/public/Audio/Lady%20Gaga,%20Bruno%20Mars%20-%20Die%20With%20A%20Smile%20(Official%20Music%20Video).mp3";
-  
-  
+  const { ToggleAudioPlayer, isPlaying, audioData, setAudioData, seek, currentSong, playNextSong, playPreviousSong } = useAudioPlayer();
+
   return (
     <div className='w-1/4 h-screen overflow-auto p-6 flex-shrink-0'>
       {/* --- User Profile Section --- */}
@@ -224,7 +222,7 @@ export default function SideBarRight() {
             className='relative inset-0 z-10 h-full flex flex-col justify-end p-6'
           >
             <Image
-              src="/Hero-Background.jpg"
+              src={currentSong?.song_cover || "/Hero-Background.jpg"}
               alt=''
               fill
               className='object-cover opacity-30'
@@ -235,26 +233,31 @@ export default function SideBarRight() {
           <div
             className='absolute inset-0 z-20 flex items-end justify-center p-3'
           >
-            <div className='w-full h-5/7 flex flex-col items-center justify-center rounded-2xl bg-neutral-900/40 hover:bg-neutral-900/60 border border-neutral-900 hover:border-neutral-800/60'>
-              <h1 className='text-white font-semibold'>Song Title</h1>
-              <p className='text-neutral-600 text-sm'>Song Owner</p>
+            <div className='w-full h-5/7 flex flex-col items-center justify-center rounded-2xl bg-neutral-900/60 hover:bg-neutral-900/60 border border-neutral-700 hover:border-neutral-800/60'>
+              <h1 className='text-white font-semibold'>
+                {currentSong?.song_owner || ""}
+              </h1>
+              <p className='text-neutral-600 text-sm'>
+                {currentSong?.song_name || ""}
+              </p>
               <div
                 className='w-full flex items-center justify-center mt-3 gap-3'
               >
                 <button
-                  disabled
+                  onClick={playPreviousSong}
                   className='group disabled:text-neutral-500 cursor-pointer text-neutral-300 hover:text-white'
                 >
                   <SkipBack size={20} className='group-disabled:fill-neutral-500 group-disabled:cursor-not-allowed fill-white' />
                 </button>
                 <button
-                  onClick={() => ToggleAudioPlayer(TestSrcAudio)}
-                  className='border border-neutral-500 hover:border-white p-1.5 cursor-pointer rounded-full'
+                  disabled={!currentSong?.song_audio_url}
+                  onClick={() => currentSong && ToggleAudioPlayer(currentSong)}
+                  className='group border border-neutral-500 hover:border-white p-1.5 cursor-pointer rounded-full disabled:hover:border-neutral-500 disabled:text-neutral-500 disabled:cursor-not-allowed'
                 >
-                  {isPlaying ? <Pause size={20} className='fill-white' /> : <Play size={20} className='fill-white' />}
+                  {isPlaying ? <Pause size={20} className='fill-white' /> : <Play size={20} className='fill-white group-disabled:fill-neutral-500' />}
                 </button>
                 <button
-                  disabled
+                  onClick={playNextSong}
                   className='group disabled:text-neutral-500 cursor-pointer text-neutral-300 hover:text-white'
                 >
                   <SkipForward size={20} className='group-disabled:fill-neutral-500 group-disabled:cursor-not-allowed fill-white' />
