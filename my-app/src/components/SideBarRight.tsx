@@ -1,44 +1,110 @@
 "use client"
 import { useAudioPlayer } from '@/Context/AudioPlayerProvider'
 import { useUserInfos } from '@/Context/UserInfosContext'
-import { ChevronDown, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { ChevronDown, LogOut, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { SidBarMenuNavigations } from './SideBarLeft'
+import { createClient } from '@/utils/supabase/client'
 
+
+const DropDownProfilMenu = () => {
+  const pathname = usePathname();
+  const supabase = createClient();
+
+  const HandleLogOut = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      alert("Sign out error:" + error.message);
+    }
+  }
+  return (
+    <ul
+      className='bg-black space-y-1 w-full min-h-30 p-3 rounded-lg border border-neutral-800/80'
+    >
+      {SidBarMenuNavigations.map((item, idx) => {
+        const isActive = pathname === item.href;
+        return (
+          <Link 
+            href={item.href} 
+            key={idx}
+            className={`w-full capitalize py-1 px-3 rounded-lg flex items-center gap-3 text-sm border cursor-pointer font-[500]
+              ${isActive ? "text-black bg-white border-transparent" : "hover:bg-neutral-900 border-transparent hover:border-neutral-800"}`} 
+          >
+            <item.icon size={20}/> {item.name}
+          </Link>
+        )
+      })}
+      <button
+        onClick={HandleLogOut}
+        className='w-full capitalize py-1 px-3 rounded-lg bg-red-900/20 
+          hover:bg-red-900/40 flex items-center gap-3 text-sm border 
+          border-red-900/20 hover:border-red-900/40 text-red-600 
+          cursor-pointer font-[500]'
+      >
+        <LogOut size={20}/> Logout
+      </button>
+    </ul>
+  )
+}
 export default function SideBarRight() {
   const pathname = usePathname();
   if(pathname?.startsWith('/auth/')) {
     return null;
   }
 
+  const [isOpen, setIsOpen] = useState(false);
+  const DropDown_Ref = useRef<HTMLDivElement | null>(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if(DropDown_Ref.current && !DropDown_Ref.current.contains(event.target as Node)){
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  },[])
+
   const { ToggleAudioPlayer, isPlaying, audioData, setAudioData, seek } = useAudioPlayer();
-  const TestSrcAudio = "https://iyzmssnbulmbaqvkprxl.supabase.co/storage/v1/object/public/Audio/Lady%20Gaga,%20Bruno%20Mars%20-%20Die%20With%20A%20Smile%20(Official%20Music%20Video).mp3";
   const { email, id, fullname, isLoading } = useUserInfos();
+  
+  const TestSrcAudio = "https://iyzmssnbulmbaqvkprxl.supabase.co/storage/v1/object/public/Audio/Lady%20Gaga,%20Bruno%20Mars%20-%20Die%20With%20A%20Smile%20(Official%20Music%20Video).mp3";
+  
+  
   return (
     <div className='w-1/4 h-screen overflow-auto p-6 flex-shrink-0'>
       {/* --- User Profile Section --- */}
-      {isLoading ? "loading..." : email !== "" ? (
+      {isLoading ? (
+        <span className='flex py-7.5 w-full rounded-lg bg-neutral-900 border border-neutral-800/80 animate-pulse' />
+      ) : email !== "" ? (
       <div
-        className='w-full flex items-center gap-3 justify-between py-1.5 px-3 
+        ref={DropDown_Ref}
+        onClick={() => setIsOpen(!isOpen)}
+        className='relative w-full flex items-center gap-3 justify-between py-1.5 px-3 
           cursor-pointer border border-neutral-900 hover:border-neutral-800 
           rounded-2xl bg-neutral-900/40 hover:bg-neutral-900'
       >
         <div
-        className='flex items-center gap-3'
-      >
-        <div
-          className='relative overflow-hidden border-2 border-transparent 
-            ring ring-neutral-100 bg-neutral-900 w-12 h-12 rounded-full'
+          className='flex items-center gap-3'
         >
-          <Image
-            src="/Hero-Background.jpg"
-            alt=''
-            fill
-            className='object-cover'
-            priority
-          />
-        </div>
+          <div
+            className='relative overflow-hidden border-2 border-transparent 
+              ring ring-neutral-100 bg-neutral-900 w-12 h-12 rounded-full'
+          >
+            <Image
+              src="/Hero-Background.jpg"
+              alt=''
+              fill
+              className='object-cover'
+              priority
+            />
+          </div>
           <span className='flex flex-col'>
             <h1 
               className='text-lg font-semibold text-white truncate max-w-[140px]'
@@ -54,7 +120,16 @@ export default function SideBarRight() {
           </span>
         </div>
 
-        <ChevronDown size={20}/>
+        <ChevronDown 
+          size={20} 
+          className={`transition-transform duration-200 
+          ${isOpen ? "rotate-180" : ""}`}
+        />
+        <div
+          className='absolute z-30 top-full mt-2 left-0 w-full'
+        >
+          {isOpen && <DropDownProfilMenu />}
+        </div>
       </div>
       ) : !isLoading && email === "" && (
         <Link

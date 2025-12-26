@@ -14,6 +14,7 @@ type PlayerContextType = {
     currentTime: number;
   }>>;
   seek: (time: number) => void;
+  currentUrl: string;
 };
 
 const AudioPlayerContext = createContext<PlayerContextType | null>(null);
@@ -25,6 +26,7 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
         duration: 0,
         currentTime: 0,
     });
+    const [currentUrl, setCurrentUrl] = useState("");
 
     useEffect(() => {
         audioRef.current = new Audio();
@@ -55,14 +57,14 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
         audio.src = src;
         audio.load();
         }
-
         if(audio.paused){
-            await audio.play();
-            setIsPlaying(true);
+          await audio.play();
+          setIsPlaying(true);
         }else{
-            audio.pause();
-            setIsPlaying(false);
+          audio.pause();
+          setIsPlaying(false);
         }
+        setCurrentUrl(src);
     };
 
     const seek = (time: number) => {
@@ -74,7 +76,7 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
     }
 
   return (
-    <AudioPlayerContext.Provider value={{ ToggleAudioPlayer, audioData, setAudioData, isPlaying, seek }}>
+    <AudioPlayerContext.Provider value={{ ToggleAudioPlayer, audioData, setAudioData, isPlaying, seek, currentUrl }}>
       {children}
     </AudioPlayerContext.Provider>
   );

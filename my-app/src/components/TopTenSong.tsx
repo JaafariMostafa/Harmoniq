@@ -1,9 +1,26 @@
-import { Heart, MoreVertical } from 'lucide-react'
+"use client";
+import { useAudioPlayer } from '@/Context/AudioPlayerProvider';
+import { getSongDuration } from '@/lib/getSongDuration';
+import { TopTenSongsProps } from '@/lib/GlobalTypes'
+import { Heart, Pause, Play } from 'lucide-react'
+import Image from 'next/image';
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
-export default function TopTenSong() {
-  return (
+export default function TopTenSong({ TopTenSongs }: { TopTenSongs: TopTenSongsProps[]; }) {
+  const [durations, setDurations] = useState<{ [key: string]: number }>({});
+  useEffect(() => {
+    TopTenSongs.forEach(async (song) => {
+        try {
+            const duration = await getSongDuration(song.song_audio_url);
+            setDurations((prev) => ({ ...prev, [song.song_audio_url as string]: duration as number }));
+        }catch (err){
+            console.log((err as { message: string }).message)
+        }
+    })
+  },[])
+    const { ToggleAudioPlayer, currentUrl, isPlaying } = useAudioPlayer();
+    return (
     <div>
         {/* --- TopTen Header --- */}
         <div
@@ -36,7 +53,7 @@ export default function TopTenSong() {
                 <thead>
                     <tr>
                         <th className='px-6 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider'>#</th>
-                        <th className='px-6 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider'>Song Name</th>
+                        <th className='px-6 py-3 text-start text-xs font-semibold text-gray-400 uppercase tracking-wider'>Song Name</th>
                         <th className='px-6 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider'>Artist</th>
                         <th className='px-6 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider'>Time</th>
                         <th className='px-6 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider'>Like</th>
@@ -44,11 +61,14 @@ export default function TopTenSong() {
                     </tr>
                 </thead>
                 <tbody>
-                    {Array(20).fill(0).map((_, idx) => {
+                    {TopTenSongs.length > 0 ? TopTenSongs.map((song, idx) => {
+                        const isSongPlaying = (songUrl: string) =>
+                            currentUrl?.trim().toLowerCase() === songUrl.trim().toLowerCase() && isPlaying;
                         return (
                             <tr
                                 key={idx}
-                                className='hover:bg-neutral-800/40'
+                                className={`hover:bg-neutral-800/40
+                                    ${currentUrl.toLowerCase() === song.song_audio_url.toLowerCase() ? "bg-neutral-800/40" : ""}`}
                             >
                                 <td
                                     className='text-center py-1.5 text-xs'
@@ -57,31 +77,44 @@ export default function TopTenSong() {
                                 </td>
                                 <td className='text-center py-1.5'>
                                     <div
-                                        className='flex justify-center items-center gap-3'
+                                        className='flex justify-start items-center gap-3'
                                     >
                                         <div
-                                            className='w-10 h-10 rounded-lg border border-neutral-800 overflow-hidden'
-                                        ></div>
-                                        <h1
-                                            className='font-semibold text-sm truncate text-white text-md'
+                                            className='relative w-10 h-10 rounded-lg border border-neutral-800 overflow-hidden'
                                         >
-                                            Song Title
+                                            <Image
+                                                src={song.song_cover}
+                                                alt={song.song_name}
+                                                fill
+                                                className='object-cover'
+                                            />
+                                        </div>
+                                        <h1
+                                            title={song.song_name}
+                                            className='font-semibold text-sm truncate max-w-[120px] text-white text-md'
+                                        >
+                                            {song.song_name}
                                         </h1>
                                     </div>
                                 </td>
                                 <td
                                     className='text-center py-1.5'
                                 >
-                                    <span
-                                        className='text-xs bg-gradient-to-r from-white via-white to-transparent truncate bg-clip-text text-transparent'
+                                    <h1
+                                        title={song.song_owner}
+                                        className='text-xs bg-gradient-to-r from-white via-white hover:to-white to-transparent truncate bg-clip-text text-transparent'
                                     >
-                                        Artist Name
-                                    </span>
+                                        {song.song_owner.length > 20 ? `${song.song_owner.slice(0, 20)}...` : song.song_owner}
+                                    </h1>
                                 </td>
                                 <td
                                     className='text-center py-1.5 text-xs'
                                 >
-                                    2:55
+                                    <div
+                                        className='w-full flex justify-center'
+                                    >
+                                        {durations[song.song_audio_url] ? `${Math.floor(durations[song.song_audio_url] / 60)}:${Math.floor(durations[song.song_audio_url] % 60).toString().padStart(2 ,"0")}` : (<span className='flex w-full max-w-[70px] bg-neutral-800 border border-neutral-700/40 py-3 rounded-lg animate-pulse'/>)}
+                                    </div>
                                 </td>
                                 <td
                                     className='text-center py-1.5'
@@ -89,23 +122,26 @@ export default function TopTenSong() {
                                     <h2
                                         className='flex items-center justify-center gap-1.5 text-xs'
                                     >
-                                        <Heart className='fill-current' size={16}/> 1.2k
+                                        <Heart className='fill-current' size={16}/> {song.song_likes || 0}
                                     </h2>
                                 </td>
                                 <td
                                     className='text-center py-1.5'
                                 >
-                                    <span
-                                        className='flex justify-center'
+                                    <div
+                                        className='w-full flex justify-center'
                                     >
-                                        <button className='cursor-pointer rounded-full p-1 hover:bg-neutral-800/40 flex items-center justify-center'>
-                                            <MoreVertical className='flex-shrink-0 w-3.5 h-3.5' size={18}/>
+                                        <button 
+                                            onClick={() => ToggleAudioPlayer(song.song_audio_url)}
+                                            className='cursor-pointer rounded-full p-1 hover:bg-neutral-700/60 flex items-center justify-center'
+                                        >
+                                            {isSongPlaying(song.song_audio_url) ? <Pause size={18} /> : <Play size={18}/>}
                                         </button>
-                                    </span>
+                                    </div>
                                 </td>
                             </tr>
                         )
-                    })}
+                    }) : "No songs found"}
                 </tbody>
             </table>
         </div>

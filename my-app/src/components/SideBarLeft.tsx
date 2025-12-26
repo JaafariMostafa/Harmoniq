@@ -53,7 +53,7 @@ export default function SideBarLeft() {
   )
 }
 
-const SidBarMenuNavigations = [
+export const SidBarMenuNavigations = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'discover', href: '/discover', icon: Globe },
   { name: 'Search', href: '/search', icon: Search },

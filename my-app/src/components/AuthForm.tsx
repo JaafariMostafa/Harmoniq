@@ -3,12 +3,14 @@
 import { createClient } from "@/utils/supabase/client";
 import { Loader } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 
 export default function AuthForm() {
     const supabase = createClient();
+    const router = useRouter();
+
     const [inputs, setInputs] = useState({
         email: "",
         password: ""
@@ -35,9 +37,9 @@ export default function AuthForm() {
                 }
             })
             setIsLoading(false);
-            redirect('/');
+            router.push('/');
         }catch (err){
-            setError("An unexpected error occurred. Please try again.");
+            setError("An unexpected error occurred. Please try again." + err);
             setIsLoading(false);
         }
     }

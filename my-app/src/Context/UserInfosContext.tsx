@@ -35,6 +35,24 @@ export function UserInfosProvider({ children }: { children: ReactNode }){
 
         }
         fetchUserInfos().finally(() => setIsLoading(false));
+        
+        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+            if(!session?.user){
+                setUserInfos({
+                    email: "",
+                    id: "",
+                    fullname: "",
+                })
+            }else {
+                setUserInfos({
+                    email: session.user.email || "",
+                    id: session.user.id,
+                    fullname: session.user.user_metadata.fullname || "",
+                })
+            }
+        })
+
+        return () => listener.subscription.unsubscribe();
     },[supabase])
     const contextValue = {
         ...userInfos,
