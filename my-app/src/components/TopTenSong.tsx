@@ -1,13 +1,13 @@
 "use client";
 import { useAudioPlayer } from '@/Context/AudioPlayerProvider';
 import { getSongDuration } from '@/lib/getSongDuration';
-import { TopTenSongsProps } from '@/lib/GlobalTypes'
+import { SongTypes } from '@/lib/GlobalTypes'
 import { Heart, Pause, Play } from 'lucide-react'
 import Image from 'next/image';
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 
-export default function TopTenSong({ TopTenSongs }: { TopTenSongs: TopTenSongsProps[]; }) {
+export default function TopTenSong({ TopTenSongs }: { TopTenSongs: SongTypes[]; }) {
   const [durations, setDurations] = useState<{ [key: string]: number }>({});
   useEffect(() => {
     TopTenSongs.forEach(async (song) => {

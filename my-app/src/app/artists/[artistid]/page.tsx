@@ -1,14 +1,14 @@
 import { getArtistByID } from '@/lib/getArtistByID';
-import { Play } from 'lucide-react';
+import { getArtistSongs } from '@/lib/getArtistSongs';
 import Image from 'next/image';
-import React from 'react'
+import ArtistSongsList from './ArtistSongsList';
 
 export default async function page({ params }: { params: Promise<{ artistid: string; }> }) {
     const resolvedParams = await params;
     const Artist_ID = resolvedParams?.artistid;
 
     const Artist_Details = await getArtistByID(Artist_ID);
-
+    const Artist_Songs = await getArtistSongs(Artist_ID);
     return (
     <div
         className='relative w-full min-h-screen z-20'
@@ -32,47 +32,10 @@ export default async function page({ params }: { params: Promise<{ artistid: str
         <div
             className='absolute w-full z-30 top-0 left-0'
         >
-            <div
-                className='py-6 mt-6 flex items-end gap-3'
-            >
-                <div
-                    className='relative w-34 h-34 rounded-full overflow-hidden border-2'
-                >
-                    <Image
-                        src={Artist_Details.artist_profil}
-                        fill
-                        alt={Artist_Details.artist_name}
-                        className='object-cover'
-                    />
-                </div>
-                <div>
-                    <p
-                        className='text-neutral-500 font-semibold text-sm'
-                    >
-                        Artist
-                    </p>
-                    <h1
-                        className='text-2xl font-light'
-                    >
-                        {Artist_Details.artist_name}
-                    </h1>
-                    <div
-                        className='flex items-center gap-1.5 mt-3'
-                    >
-                        <button
-                            className='cursor-pointer flex items-center gap-1.5 py-1 bg-white hover:bg-white/80 text-neutral-900 text-sm font-semibold px-6 rounded-full'
-                        >
-                            <Play size={14} className='fill-current'/> Play
-                        </button>
-                        <button
-                            className='hover:bg-neutral-800/80 cursor-pointer text-sm border py-1 px-6 rounded-full'
-                        >
-                            Follow
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <span className='flex h-px w-full bg-neutral-800'/>
+            <ArtistSongsList
+                Artist_Details={Artist_Details}
+                Artist_Songs={Artist_Songs}
+            />
         </div>
     </div>
   )

@@ -1,10 +1,10 @@
 "use client";
 
-import { TopTenSongsProps } from "@/lib/GlobalTypes";
+import { SongTypes } from "@/lib/GlobalTypes";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type PlayerContextType = {
-  ToggleAudioPlayer: (currentSong: TopTenSongsProps) => Promise<void>;
+  ToggleAudioPlayer: (currentSong: SongTypes) => Promise<void>;
   isPlaying: boolean;
   audioData: {
     duration: number;
@@ -15,9 +15,9 @@ type PlayerContextType = {
     currentTime: number;
   }>>;
   seek: (time: number) => void;
-  currentPlaylist: TopTenSongsProps[] | [];
-  setCurrentPlaylist: (currentPlaylist: TopTenSongsProps[] | []) => void;
-  currentSong: TopTenSongsProps | null;
+  currentPlaylist: SongTypes[] | [];
+  setCurrentPlaylist: (currentPlaylist: SongTypes[] | []) => void;
+  currentSong: SongTypes | null;
   playNextSong: () => Promise<void>;
   playPreviousSong: () => Promise<void>;
 };
@@ -31,8 +31,8 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
         duration: 0,
         currentTime: 0,
     });
-    const [currentPlaylist, setCurrentPlaylist] = useState<TopTenSongsProps[] | []>([]);
-    const [currentSong, setCurrentSong] = useState<TopTenSongsProps | null>(null);
+    const [currentPlaylist, setCurrentPlaylist] = useState<SongTypes[] | []>([]);
+    const [currentSong, setCurrentSong] = useState<SongTypes | null>(null);
 
     useEffect(() => {
         audioRef.current = new Audio();
@@ -55,7 +55,7 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
     }, []);
 
   
-    const ToggleAudioPlayer = async (current_Song: TopTenSongsProps) => {
+    const ToggleAudioPlayer = async (current_Song: SongTypes) => {
         const audio = audioRef.current;
         if (!audio) return;
 
