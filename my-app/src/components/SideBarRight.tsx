@@ -8,6 +8,9 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { SidBarMenuNavigations } from './SideBarLeft'
 import { createClient } from '@/utils/supabase/client'
+import { getArtistsPaginated } from '@/lib/getArtistsPaginated'
+import { ArtistProps } from '@/lib/GlobalTypes'
+import { getFollowersCount } from '@/lib/GetFollowersCount'
 
 
 const DropDownProfilMenu = () => {
@@ -50,7 +53,7 @@ const DropDownProfilMenu = () => {
     </ul>
   )
 }
-export default function SideBarRight() {
+export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps[] }) {
   const pathname = usePathname();
   if(pathname?.startsWith('/auth/')) {
     return null;
@@ -167,24 +170,25 @@ export default function SideBarRight() {
 
         {/* --- Top Artists List --- */}
         <div
-          className='flex flex-col gap-4'
+          className='flex flex-col gap-1'
         >
-          {Array(4).fill(0).map((_, idx) => {
+          {ArtistsData.length > 0 ? ArtistsData.map((artist, idx) => {
             return (
               <div
-                key={idx}
-                className='w-full flex items-center gap-3 justify-between'
+                key={artist.id}
+                className={`w-full flex items-center gap-3 justify-between 
+                  hover:bg-neutral-900 p-1 rounded-lg cursor-pointer`}
               >
                 <div
                   className='w-full flex items-center gap-3'
                 >
                   <div
-                    className='relative overflow-hidden border border-neutral-100 
+                    className='relative overflow-hidden gradient-border
                       bg-neutral-900 w-10 h-10 rounded-lg'
                   >
                     <Image
-                      src="/Hero-Background.jpg"
-                      alt=''
+                      src={artist.artist_profil || "/Hero-Background.pg"}
+                      alt={artist.artist_name}
                       fill
                       className='object-cover'
                       priority
@@ -192,14 +196,14 @@ export default function SideBarRight() {
                   </div>
                   <span className='flex flex-col -space-y-0.5'>
                     <h1 
-                      className='text-md font-semibold text-white'
+                      className='text-sm font-[450] text-white'
                     >
-                      Artist Name
+                      {artist.artist_name}
                     </h1>
                     <p
-                      className='text-neutral-500 text-sm'
+                      className='text-neutral-500 text-xs'
                     >
-                      1.2M Followers
+                      {getFollowersCount(Number(artist?.artist_followers))} Follower
                     </p>
                   </span>
                 </div>
@@ -210,7 +214,7 @@ export default function SideBarRight() {
                 </span>
               </div>
             )
-          })}
+          }) : "No artists found"}
         </div>
 
         <div className="w-full h-px bg-neutral-900 my-3" />

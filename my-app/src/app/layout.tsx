@@ -5,6 +5,7 @@ import SideBarLeft from "@/components/SideBarLeft";
 import SideBarRight from "@/components/SideBarRight";
 import { AudioPlayerProvider } from "@/Context/AudioPlayerProvider";
 import { UserInfosProvider } from "@/Context/UserInfosContext";
+import { getArtistsPaginated } from "@/lib/getArtistsPaginated";
 
 const geom = Geom({
   variable: "--font-geom",
@@ -17,11 +18,17 @@ export const metadata: Metadata = {
   description: "A collaborative music creation platform.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  searchParams
 }: Readonly<{
   children: React.ReactNode;
+  searchParams?: { artistspage?: string; }
 }>) {
+
+  const Current_Page = searchParams?.artistspage ? parseInt(searchParams.artistspage) : 1;
+  const Limit_Count = searchParams?.artistspage ? 10 : 4;
+  const Artists_Data = await getArtistsPaginated(Limit_Count, Current_Page);
   return (
     <html lang="en">
       <body
@@ -32,7 +39,7 @@ export default function RootLayout({
           <AudioPlayerProvider>
             <SideBarLeft />
             {children}
-            <SideBarRight />
+            <SideBarRight ArtistsData={Artists_Data} />
           </AudioPlayerProvider>
         </UserInfosProvider>
       </body>

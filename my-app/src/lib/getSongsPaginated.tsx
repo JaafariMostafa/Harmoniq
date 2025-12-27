@@ -1,8 +1,8 @@
 import { createPublicClient } from "@/utils/supabase/server-public";
 import { unstable_cache } from "next/cache";
 
-
-export const getSongsPaginated = (page: number, PAGE_SIZE: number = 10) => unstable_cache(
+const PAGE_SIZE: number = 10;
+export const getSongsPaginated = (page: number = 1) => unstable_cache(
     async () => {
         const supabase = createPublicClient();
 
@@ -13,7 +13,8 @@ export const getSongsPaginated = (page: number, PAGE_SIZE: number = 10) => unsta
             .from('songs')
             .select("*", { count: 'exact' })
             .range(from, to)
-            .order('created_at', { ascending: false });
+            .order('song_likes', { ascending: false })
+            .limit(10);
 
         if (error) {
             throw new Error(error.message);
@@ -26,7 +27,7 @@ export const getSongsPaginated = (page: number, PAGE_SIZE: number = 10) => unsta
             pageSize: PAGE_SIZE,
         }
     },
-    [`products-page-${page}`],
+    [`songs-page-${page}-page-size${PAGE_SIZE}`],
     {
         revalidate: 3600,
     }

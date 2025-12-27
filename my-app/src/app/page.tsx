@@ -2,14 +2,11 @@ import HeroSection from "@/components/HeroSection";
 import { RoutingButtons } from "@/components/RoutingButtons";
 import TopTenSong from "@/components/TopTenSong";
 import { getSongsPaginated } from "@/lib/getSongsPaginated";
-import { TopTenSongsProps } from "@/lib/GlobalTypes";
-import Image from "next/image";
 
 
-
-
-export default async function Home(){
-  const Songs_Data = await getSongsPaginated(1);
+export default async function Home({ searchParams }: { searchParams?: { page?: string } }){
+  const Current_Page = searchParams?.page ? parseInt(searchParams?.page) : 1;
+  const Songs_Data = await getSongsPaginated(Current_Page);
 
   return (
     <main 
@@ -17,7 +14,6 @@ export default async function Home(){
     >
       <RoutingButtons />
       <HeroSection />
-      {/* {JSON.stringify(Songs_Data)} */}
       <TopTenSong TopTenSongs={Songs_Data.data} />
     </main>
   )
