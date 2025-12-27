@@ -44,7 +44,7 @@ export default function SideBarLeft() {
       >
         <h3 className='font-semibold text-sm text-neutral-600 uppercase mb-1.5'>Playlists</h3>
           <span
-            className='w-full text-xs text-neutral-700 text-center italic'
+            className='w-full text-sm text-neutral-600 text-center italic'
           >
             No playlists found
           </span>

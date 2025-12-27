@@ -214,7 +214,13 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
                 </span>
               </div>
             )
-          }) : "No artists found"}
+          }) : (
+            <span
+              className='w-full text-sm text-neutral-600 text-center italic'
+            >
+              No playlists found
+            </span>
+          )}
         </div>
 
         <div className="w-full h-px bg-neutral-900 my-3" />
@@ -249,6 +255,7 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
               >
                 <button
                   onClick={playPreviousSong}
+                  disabled={!currentSong}
                   className='group disabled:text-neutral-500 cursor-pointer text-neutral-300 hover:text-white'
                 >
                   <SkipBack size={20} className='group-disabled:fill-neutral-500 group-disabled:cursor-not-allowed fill-white' />
@@ -262,6 +269,7 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
                 </button>
                 <button
                   onClick={playNextSong}
+                  disabled={!currentSong}
                   className='group disabled:text-neutral-500 cursor-pointer text-neutral-300 hover:text-white'
                 >
                   <SkipForward size={20} className='group-disabled:fill-neutral-500 group-disabled:cursor-not-allowed fill-white' />
