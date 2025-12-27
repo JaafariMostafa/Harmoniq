@@ -5,7 +5,7 @@ import { ArtistProps } from "./GlobalTypes";
 
 
 
-export const getArtistByID = async (artistID: number) => {
+export const getArtistByID = async (artistID: string) => {
     const cachedFc = unstable_cache(
         async () => {
             const supabase = createPublicClient();

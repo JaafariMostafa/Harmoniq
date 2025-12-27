@@ -13,12 +13,14 @@ export function RoutingButtons() {
             <button 
                 disabled={pathname === "/"} 
                 onClick={() => router.back()} 
-                className='disabled:text-neutral-500 disabled:cursor-not-allowed cursor-pointer hover:bg-neutral-800/80 p-1.5 rounded-full bg-neutral-800/40 text-white'>
+                className='border border-neutral-800 disabled:text-neutral-500 disabled:cursor-not-allowed cursor-pointer hover:bg-neutral-800/80 p-1.5 rounded-full bg-neutral-800/40 text-white'>
                     <ChevronLeft 
                         size={20}
                     />
             </button>
-            <button onClick={() => router.forward()} className='cursor-pointer hover:bg-neutral-800/80 p-1.5 rounded-full bg-neutral-800/40 text-white'><ChevronRight size={20}/></button>
+            <button 
+                onClick={() => router.forward()} 
+                className='border border-neutral-800 cursor-pointer hover:bg-neutral-800/80 p-1.5 rounded-full bg-neutral-800/40 text-white'><ChevronRight size={20}/></button>
         </div>
     )
 }
