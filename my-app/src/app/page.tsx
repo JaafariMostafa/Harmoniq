@@ -1,5 +1,4 @@
 import HeroSection from "@/components/HeroSection";
-import { RoutingButtons } from "@/components/RoutingButtons";
 import TopTenSong from "@/components/TopTenSong";
 import { getSongsPaginated } from "@/lib/getSongsPaginated";
 
@@ -10,9 +9,8 @@ export default async function Home({ searchParams }: { searchParams?: { page?: s
 
   return (
     <main 
-      className="grow w-full p-6 bg-neutral-900 text-white w-full max-h-screen overflow-auto"
+      className="w-full text-white"
     >
-      <RoutingButtons />
       <HeroSection />
       <TopTenSong TopTenSongs={Songs_Data.data} />
     </main>

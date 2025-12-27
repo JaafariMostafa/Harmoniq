@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Geom } from "next/font/google";
+import { Geom, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import SideBarLeft from "@/components/SideBarLeft";
 import SideBarRight from "@/components/SideBarRight";
 import { AudioPlayerProvider } from "@/Context/AudioPlayerProvider";
 import { UserInfosProvider } from "@/Context/UserInfosContext";
 import { getArtistsPaginated } from "@/lib/getArtistsPaginated";
+import { RoutingButtons } from "@/components/RoutingButtons";
 
-const geom = Geom({
+const geom = Noto_Sans({
   variable: "--font-geom",
   subsets: ["latin"],
   weight: ["400", "600", "800"],
@@ -38,7 +39,12 @@ export default async function RootLayout({
         <UserInfosProvider>
           <AudioPlayerProvider>
             <SideBarLeft />
-            {children}
+            <div
+              className="w-full h-screen overflow-auto p-6 bg-neutral-900"
+            >
+              <RoutingButtons />
+              {children}
+            </div>
             <SideBarRight ArtistsData={Artists_Data} />
           </AudioPlayerProvider>
         </UserInfosProvider>

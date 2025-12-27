@@ -10,7 +10,7 @@ import { SidBarMenuNavigations } from './SideBarLeft'
 import { createClient } from '@/utils/supabase/client'
 import { getArtistsPaginated } from '@/lib/getArtistsPaginated'
 import { ArtistProps } from '@/lib/GlobalTypes'
-import { getFollowersCount } from '@/lib/GetFollowersCount'
+import { getFollowersCount } from '@/lib/getFollowersCount'
 
 
 const DropDownProfilMenu = () => {
@@ -161,7 +161,7 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
                 </h1>
             </div>
             <Link
-                href="/top-artists"
+                href="/artists"
                 className='text-sm text-neutral-400 hover:text-neutral-200 cursor-pointer text-nowrap'
             >
                 See all
@@ -174,7 +174,8 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
         >
           {ArtistsData.length > 0 ? ArtistsData.map((artist, idx) => {
             return (
-              <div
+              <Link
+                href={`/artists/${artist.id}`}
                 key={artist.id}
                 className={`w-full flex items-center gap-3 justify-between 
                   hover:bg-neutral-900 p-1 rounded-lg cursor-pointer`}
@@ -212,7 +213,7 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
                 >
                   #{idx + 1}
                 </span>
-              </div>
+              </Link>
             )
           }) : (
             <span
