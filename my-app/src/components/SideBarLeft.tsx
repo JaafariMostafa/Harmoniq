@@ -49,6 +49,16 @@ export default function SideBarLeft() {
             No playlists found
           </span>
       </ul>
+      <ul
+        className='flex flex-col items-start gap-1 mt-6'
+      >
+        <h3 className='font-semibold text-sm text-neutral-600 uppercase mb-1.5'>Favorites</h3>
+          <span
+            className='w-full text-sm text-neutral-600 text-center italic'
+          >
+            No favorites found
+          </span>
+      </ul>
     </div>
   )
 }

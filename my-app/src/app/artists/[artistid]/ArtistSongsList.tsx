@@ -1,13 +1,18 @@
 "use client";
 import { useAudioPlayer } from '@/Context/AudioPlayerProvider';
 import { ArtistProps, SongTypes } from '@/lib/GlobalTypes';
-import { Pause, Play, User } from 'lucide-react';
+import { Heart, Pause, Play, User } from 'lucide-react';
 import Image from 'next/image';
-import React from 'react'
+import React, { useEffect } from 'react'
 
 export default function ArtistSongsList({ Artist_Details, Artist_Songs }: { Artist_Details: ArtistProps; Artist_Songs: SongTypes[]; }) {
-    const { ToggleAudioPlayer, setCurrentPlaylist, currentPlaylist, isPlaying, currentSong } = useAudioPlayer();
+    const { ToggleAudioPlayer, setCurrentPlaylist, currentPlaylist, isPlaying, currentSong, playNextSong } = useAudioPlayer();
 
+    useEffect(() => {
+        setCurrentPlaylist(Artist_Songs)
+    },[Artist_Details.id])
+
+    const isActivePlaylist = currentPlaylist.find((s) => s.id === currentSong?.id);
     return (
         <div>
             {/* --- Artist Profile Header --- */}
@@ -38,11 +43,25 @@ export default function ArtistSongsList({ Artist_Details, Artist_Songs }: { Arti
                     <div
                         className='flex items-center gap-1.5 mt-3'
                     >
-                        <button
-                            className='cursor-pointer flex items-center gap-1.5 py-1 bg-white hover:bg-white/80 text-neutral-900 text-sm font-semibold px-6 rounded-full'
-                        >
-                            <Play size={14} className='fill-current'/> Play
-                        </button>
+                        {isActivePlaylist && isPlaying ? (
+                            <button
+                                onClick={() => {
+                                    ToggleAudioPlayer(Artist_Songs[0]);
+                                }}
+                                className='cursor-pointer flex items-center gap-1.5 py-1 bg-white hover:bg-white/80 text-neutral-900 text-sm font-semibold px-6 rounded-full'
+                            >
+                                <Pause size={14} className='fill-current'/> Pause
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => {
+                                    ToggleAudioPlayer(Artist_Songs[0]);
+                                }}
+                                className='cursor-pointer flex items-center gap-1.5 py-1 bg-white hover:bg-white/80 text-neutral-900 text-sm font-semibold px-6 rounded-full'
+                            >
+                                <Play size={14} className='fill-current'/> Play
+                            </button>
+                        )}
                         <button
                             className='hover:bg-neutral-800/80 cursor-pointer text-sm border py-1 px-6 rounded-full'
                         >
@@ -98,9 +117,13 @@ export default function ArtistSongsList({ Artist_Details, Artist_Songs }: { Arti
                                     </p>
                                 </span>
                             </div>
-                            <div>
-                                <button>
-
+                            <div
+                                className='flex items-center gap-3'
+                            >
+                                <button
+                                    className='cursor-pointer'
+                                >
+                                    <Heart size={20} className='fill-current'/>
                                 </button>
                                 <button
                                     onClick={() => {

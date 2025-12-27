@@ -244,11 +244,11 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
           <div
             className='absolute inset-0 z-20 flex items-end justify-center p-3'
           >
-            <div className='w-full h-5/7 flex flex-col items-center justify-center rounded-2xl bg-neutral-900/60 hover:bg-neutral-900/60 border border-neutral-700 hover:border-neutral-800/60'>
-              <h1 className='text-white font-semibold'>
+            <div className='w-full p-3 h-5/7 flex flex-col items-center justify-center rounded-2xl bg-neutral-900/60 hover:bg-neutral-900/60 border border-neutral-700 hover:border-neutral-800/60'>
+              <h1 className='text-white font-semibold truncate max-w-[160px]'>
                 {currentSong?.song_owner || ""}
               </h1>
-              <p className='text-neutral-600 text-sm'>
+              <p className='text-neutral-600 text-sm max-w-[180px] truncate mt-0.5'>
                 {currentSong?.song_name || ""}
               </p>
               <div
