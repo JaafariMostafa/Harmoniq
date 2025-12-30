@@ -1,63 +1,40 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { error } from "console";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
-
-type UserInfosType = {
-    email: string;
-    id: string;
-    fullname: string;
+type UserInfosTypes = {
+    user: User | null;
     isLoading: boolean;
 }
-const UserInfosContext = createContext<UserInfosType | null>(null);
+const UserInfosContext = createContext<UserInfosTypes | null>(null);
 
-export function UserInfosProvider({ children }: { children: ReactNode }){
+export function UserInfosProvider({ children, serverUser }: { children: ReactNode; serverUser: User | null }){
     const [isLoading, setIsLoading] = useState(true);
-    const [userInfos, setUserInfos] = useState({
-        email: "",
-        id: "",
-        fullname: "",
-    })
+    const [userInfos, setUserInfos] = useState<User | null>(serverUser);
+    
     const supabase = createClient();
 
     useEffect(() => {
         setIsLoading(true);
-        const fetchUserInfos = async () => {
-            await supabase.auth.getUser().then(({data: {user}}) => {
-                if(user){
-                    setUserInfos({
-                        email: user.email || "",
-                        id: user.id,
-                        fullname: user.user_metadata.fullname || "",
-                    })
-                }
-            })
-
-        }
-        fetchUserInfos().finally(() => setIsLoading(false));
         
         const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-            if(!session?.user){
-                setUserInfos({
-                    email: "",
-                    id: "",
-                    fullname: "",
-                })
+            if(!session){
+                setUserInfos(null);
             }else {
-                setUserInfos({
-                    email: session.user.email || "",
-                    id: session.user.id,
-                    fullname: session.user.user_metadata.fullname || "",
-                })
+                setUserInfos(session?.user)
             }
         })
-
+        setIsLoading(false);
         return () => listener.subscription.unsubscribe();
     },[supabase])
+
     const contextValue = {
-        ...userInfos,
+        user: userInfos,
         isLoading,
     }
+
     return (
         <UserInfosContext.Provider value={contextValue}>
             {children}

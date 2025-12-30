@@ -20,6 +20,9 @@ type PlayerContextType = {
   currentSong: SongTypes | null;
   playNextSong: () => Promise<void>;
   playPreviousSong: () => Promise<void>;
+  playContextId: string | null;
+  setPlayContextId: (id: string) => void;
+  PlayArtistPlaylist: (contextId: string, Playlist: SongTypes[]) => Promise<void>
 };
 
 const AudioPlayerContext = createContext<PlayerContextType | null>(null);
@@ -34,6 +37,10 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
     const [currentPlaylist, setCurrentPlaylist] = useState<SongTypes[] | []>([]);
     const [currentSong, setCurrentSong] = useState<SongTypes | null>(null);
 
+    const [playContextId, setPlayContextId] = useState<string | null>(null);
+
+    const PlayNextSongRef = useRef<() => Promise<void>>(() => Promise.resolve());
+
     useEffect(() => {
         audioRef.current = new Audio();
         audioRef.current.preload = "metadata";
@@ -47,7 +54,9 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
 
         audioRef.current.addEventListener("loadedmetadata", HandleDuration);
         audioRef.current.addEventListener("timeupdate", HandleTimeUpdate);
-        audioRef.current.onended = () => setIsPlaying(false)
+        audioRef.current.onended = async () => {
+          await PlayNextSongRef.current();
+        }
         return () => {
             audioRef.current?.removeEventListener("loadedmetadata", HandleDuration);
             audioRef.current?.removeEventListener("timeupdate", HandleTimeUpdate);
@@ -117,8 +126,32 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
         setAudioData({...audioData, currentTime: time});
     }
 
+    const PlayArtistPlaylist = async (contextId: string, Playlist: SongTypes[]) => {
+      const audio = audioRef.current;
+      if(!audio && Playlist.length === 0) return;
+
+      if(contextId === playContextId && isPlaying && audio){
+        audio.pause();
+        setIsPlaying(false);
+        return;
+      }
+
+      setCurrentPlaylist(Playlist);
+      setPlayContextId(contextId);
+      setCurrentSong(Playlist[0]);
+      if(audio){
+        audio.src = Playlist[0].song_audio_url;
+        audio.load();
+        await audio.play();
+        setIsPlaying(true);
+      }
+    }
+
+    useEffect(() => {
+      PlayNextSongRef.current = playNextSong;
+    }, [playNextSong]);
   return (
-    <AudioPlayerContext.Provider value={{ ToggleAudioPlayer, playNextSong, playPreviousSong, audioData, setAudioData, isPlaying, seek, currentPlaylist, currentSong, setCurrentPlaylist }}>
+    <AudioPlayerContext.Provider value={{ ToggleAudioPlayer, playNextSong, playPreviousSong, PlayArtistPlaylist, setPlayContextId, playContextId, audioData, setAudioData, isPlaying, seek, currentPlaylist, currentSong, setCurrentPlaylist }}>
       {children}
     </AudioPlayerContext.Provider>
   );

@@ -4,13 +4,14 @@ import { useUserInfos } from '@/Context/UserInfosContext'
 import { ChevronDown, LogOut, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { SidBarMenuNavigations } from './SideBarLeft'
 import { createClient } from '@/utils/supabase/client'
 import { getArtistsPaginated } from '@/lib/getArtistsPaginated'
 import { ArtistProps } from '@/lib/GlobalTypes'
 import { getFollowersCount } from '@/lib/getFollowersCount'
+import ImageWithLoader from './ImageWithLoader'
 
 
 const DropDownProfilMenu = () => {
@@ -59,7 +60,7 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
     return null;
   }
   
-  const { email, id, fullname, isLoading } = useUserInfos();
+  const { user, isLoading } = useUserInfos();
  
   const [isOpen, setIsOpen] = useState(false);
   const DropDown_Ref = useRef<HTMLDivElement | null>(null);
@@ -78,12 +79,13 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
 
   const { ToggleAudioPlayer, isPlaying, audioData, setAudioData, seek, currentSong, playNextSong, playPreviousSong } = useAudioPlayer();
 
+  const Params = useParams();
   return (
     <div className='w-1/4 h-screen overflow-auto p-6 flex-shrink-0'>
       {/* --- User Profile Section --- */}
       {isLoading ? (
         <span className='flex py-7.5 w-full rounded-lg bg-neutral-900 border border-neutral-800/80 animate-pulse' />
-      ) : email !== "" ? (
+      ) : user ? (
       <div
         ref={DropDown_Ref}
         onClick={() => setIsOpen(!isOpen)}
@@ -98,7 +100,7 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
             className='relative overflow-hidden border-2 border-transparent 
               ring ring-neutral-100 bg-neutral-900 w-12 h-12 rounded-full'
           >
-            <Image
+            <ImageWithLoader
               src="/Hero-Background.jpg"
               alt=''
               fill
@@ -108,15 +110,15 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
           </div>
           <span className='flex flex-col'>
             <h1 
-              className='text-lg font-semibold text-white truncate max-w-[140px]'
+              className='text-md font-[450] text-white truncate max-w-[120px]'
             >
-              {fullname || email?.split('@')[0]}
+              {user?.email?.split('@')[0]}
             </h1>
             <p
               className='text-neutral-500 text-xs truncate max-w-[160px] text-nowrap'
             >
               {/* Free Account */}
-              ID: {id}
+              ID: {user?.id}
             </p>
           </span>
         </div>
@@ -132,7 +134,7 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
           {isOpen && <DropDownProfilMenu />}
         </div>
       </div>
-      ) : !isLoading && email === "" && (
+      ) : !isLoading && !user && (
         <Link
           href="/auth/login"
           className='w-full flex items-center justify-center py-2 px-3 rounded-lg bg-white text-neutral-900 font-semibold text-sm hover:bg-white/90 cursor-pointer'
@@ -173,12 +175,14 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
           className='flex flex-col gap-1'
         >
           {ArtistsData.length > 0 ? ArtistsData.map((artist, idx) => {
+            const Current_Artist_ID = Params?.artistid;
             return (
               <Link
                 href={`/artists/${artist.id}`}
                 key={artist.id}
                 className={`w-full flex items-center gap-3 justify-between 
-                  hover:bg-neutral-900 p-1 rounded-lg cursor-pointer`}
+                  p-1 rounded-lg cursor-pointer
+                  ${artist.id === Current_Artist_ID ? "bg-neutral-900" : "hover:bg-neutral-900"}`}
               >
                 <div
                   className='w-full flex items-center gap-3'
@@ -187,7 +191,7 @@ export default function SideBarRight({ ArtistsData }: { ArtistsData: ArtistProps
                     className='relative overflow-hidden gradient-border
                       bg-neutral-900 w-10 h-10 rounded-lg'
                   >
-                    <Image
+                    <ImageWithLoader
                       src={artist.artist_profil || "/Hero-Background.pg"}
                       alt={artist.artist_name}
                       fill

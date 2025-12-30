@@ -21,6 +21,7 @@ export const getArtistSongs = async (artistID: string) => unstable_cache(
         return data as SongTypes[];
             
     },[`artist-songs-${artistID}`],{
+        tags: [`artist-songs-${artistID}`],
         revalidate: 3600
     }
 )()

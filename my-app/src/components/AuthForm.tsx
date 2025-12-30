@@ -18,7 +18,7 @@ export default function AuthForm() {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    const HandleSubmitForm = (e: FormEvent<HTMLFormElement>) => {
+    const HandleSubmitForm = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if(!inputs.email || !inputs.password) {
             setError("Please fill in all fields.");
@@ -28,14 +28,17 @@ export default function AuthForm() {
 
         setIsLoading(true);
         try{
-            supabase.auth.signInWithPassword({
+            const {data, error} = await supabase.auth.signInWithPassword({
                 email: inputs.email,
                 password: inputs.password
-            }).then(({error}) => {
-                if(error) {
-                    setError(error.message);
-                }
             })
+
+            if(error){
+                setError(error.message)
+                setIsLoading(false);
+                return;
+            }
+            
             setIsLoading(false);
             router.push('/');
         }catch (err){

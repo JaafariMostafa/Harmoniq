@@ -1,25 +1,34 @@
 "use client";
 import { useAudioPlayer } from '@/Context/AudioPlayerProvider';
-import { getSongDuration } from '@/lib/getSongDuration';
+import { useSongDurations } from '@/lib/getSongDuration';
 import { SongTypes } from '@/lib/GlobalTypes'
 import { Heart, Pause, Play } from 'lucide-react'
 import Image from 'next/image';
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
+import ImageWithLoader from './ImageWithLoader';
 
 export default function TopTenSong({ TopTenSongs }: { TopTenSongs: SongTypes[]; }) {
-  const [durations, setDurations] = useState<{ [key: string]: number }>({});
-  useEffect(() => {
-    TopTenSongs.forEach(async (song) => {
-        try {
-            const duration = await getSongDuration(song.song_audio_url);
-            setDurations((prev) => ({ ...prev, [song.song_audio_url as string]: duration as number }));
-        }catch (err){
-            console.log((err as { message: string }).message)
-        }
-    })
-  },[])
+//   const [durations, setDurations] = useState<{ [key: string]: number }>({});
+//   useEffect(() => {
+//     TopTenSongs.forEach(async (song) => {
+//         try {
+//             const duration = await getSongDuration(song.song_audio_url);
+//             setDurations((prev) => ({ ...prev, [song.song_audio_url as string]: duration as number }));
+//         }catch (err){
+//             console.log((err as { message: string }).message)
+//         }
+//     })
+//   },[])
+const { formatDuration } = useSongDurations(TopTenSongs);
+
     const { ToggleAudioPlayer, isPlaying, currentSong, setCurrentPlaylist, currentPlaylist } = useAudioPlayer();
+    
+    const HandleShowToast = () => {
+        toast.success("hello this is me 'react-hot-toast'");
+    }
+
     return (
     <div>
         {/* --- TopTen Header --- */}
@@ -83,7 +92,7 @@ export default function TopTenSong({ TopTenSongs }: { TopTenSongs: SongTypes[]; 
                                         <div
                                             className='relative w-10 h-10 rounded-lg border border-neutral-800 overflow-hidden'
                                         >
-                                            <Image
+                                            <ImageWithLoader
                                                 src={song.song_cover}
                                                 alt={song.song_name}
                                                 fill
@@ -114,7 +123,8 @@ export default function TopTenSong({ TopTenSongs }: { TopTenSongs: SongTypes[]; 
                                     <div
                                         className='w-full flex justify-center'
                                     >
-                                        {durations[song.song_audio_url] ? `${Math.floor(durations[song.song_audio_url] / 60)}:${Math.floor(durations[song.song_audio_url] % 60).toString().padStart(2 ,"0")}` : (<span className='flex w-full max-w-[70px] bg-neutral-800 border border-neutral-700/40 py-3 rounded-lg animate-pulse'/>)}
+                                        {formatDuration(song.song_audio_url)}
+                                        {/* <span className='flex w-full max-w-[70px] bg-neutral-800 border border-neutral-700/40 py-3 rounded-lg animate-pulse'/> */}
                                     </div>
                                 </td>
                                 <td

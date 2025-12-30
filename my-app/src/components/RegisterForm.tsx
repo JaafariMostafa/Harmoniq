@@ -1,8 +1,9 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { Loader } from "lucide-react";
+import { Loader, Router } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 
@@ -16,7 +17,8 @@ export default function RegisterForm() {
     });
     const [isLoading, setIsLoading] = useState(false);
 
-    const HandleRegisterForm = (e: FormEvent) => {
+    const router = useRouter();
+    const HandleRegisterForm = async (e: FormEvent) => {
         e.preventDefault();
         if(inputs.email.trim() === "" || inputs.password.trim() === "" || inputs.confirmpassword.trim() === "") {
             setError("All fields are required");
@@ -31,19 +33,19 @@ export default function RegisterForm() {
         }
         setIsLoading(true);
         try{
-            supabase.auth
-            .signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email: inputs.email,
                 password: inputs.password,
             })
-            .then(({ error }) => {
-                if (error) {
-                    setError(error.message);
-                } else {
-                    setError("");
-                }
-            });
+
+            if(error){
+                setError(error.message);
+                setIsLoading(false);
+                return;
+            }
+            
             setIsLoading(false);
+            router.push('/auth/login');
         }catch (err){
             setError("An unexpected error occurred. Please try again.");
             setIsLoading(false);
